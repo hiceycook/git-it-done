@@ -1,5 +1,6 @@
 
 let issueContainerEl = document.querySelector("#issues-container");
+let limitWarningEl = document.querySelector("#limit-warning");
 
 let getRepoIssues = function (repo) {
     let apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
@@ -9,6 +10,10 @@ let getRepoIssues = function (repo) {
             response.json().then(function (data) {
                 // pass response data to dom function
                 displayIssues(data);
+                // check if api has paginated issues
+                if (response.headers.get("Link")) {
+                    displayWarning(repo);
+                }
             });
         } else {
             alert("There was a problem with your request");
@@ -47,4 +52,16 @@ let displayIssues = function (issues) {
 
 };
 
-getRepoIssues("hiceycook/portfolio");
+var displayWarning = function (repo) {
+    // add text to warning container
+    limitWarningEl.textContent = "This repo has more than 30 issues, ";
+    let linkEL = document.createElement("a");
+    linkEL.textContent = "see all issues on GitHub.com";
+    linkEL.setAttribute("href", "https://github.com/" + repo + "/issues");
+    linkEL.setAttribute("target", "_blank");
+    limitWarningEl.appendChild(linkEL);
+};
+
+
+
+getRepoIssues("facebook/react");
